@@ -6,6 +6,9 @@ from bottle_websocket import websocket
 from gevent import sleep
 from geventwebsocket import WebSocketError
 
+import generators
+from config import GENERATOR
+
 
 @route('/static/<filename>')
 def server_static_html(filename):
@@ -25,10 +28,12 @@ def server_static(filename):
 @get('/websocket', apply=[websocket])
 def echo(ws):
     counter = 0
+    Generator = getattr(generators, GENERATOR)
+    generator = Generator()
     while True:
         try:
-            data = [{"counter": counter, "id": counter % 3}]
-            ws.send(json.dumps(data))
+            data = generator.get_next()
+            ws.send(json.dumps(list(data.T.to_dict().values())))
             sleep(1)
             counter += 1
         except WebSocketError:

@@ -20,13 +20,13 @@ function connect() {
 --------- Replace this method with actual rendering logic ----------
  */
 function render(evt) {
-    var received_msg = JSON.parse(evt.data);
-    for (var i = 0; i < received_msg.length; i++) {
-        var x = received_msg[0];
-        var element = document.getElementById(x.id);
-        let innerHTML = "<b>" + JSON.stringify(x) + "</b>";
+    const received_msg = JSON.parse(evt.data);
+    for (let i = 0; i < received_msg.length; i++) {
+        const x = received_msg[0];
+        const element = document.getElementById(x.beacon_id);
+        const innerHTML = "<b>" + JSON.stringify(x) + "</b>";
         if (element == undefined) {
-            document.getElementById('content').innerHTML += (`<div id="${x.id}">${innerHTML} </div>`);
+            document.getElementById('content').innerHTML += (`<div id="${x.beacon_id}">${innerHTML} </div>`);
         } else {
             element.innerHTML = innerHTML;
         }
