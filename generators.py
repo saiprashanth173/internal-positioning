@@ -1,5 +1,9 @@
-from config import DATA_FRAME
+from keras.engine.saving import load_model
+
+from config import DATA_FRAME, MODEL_PATH
 import pandas as pd
+
+from predict import predict
 
 
 class BaseGenerator:
@@ -29,6 +33,8 @@ class BaseGenerator:
 class CSVGenerator(BaseGenerator):
     DATA_CHUNKS = []
     df = DATA_FRAME
+    model = load_model(MODEL_PATH)
+    df["location"] = pd.DataFrame(predict(model, df.iloc[:, 2:]), index=df.index)
     df['date'] = pd.to_datetime(df.date)
     grouped_by_ts = df.groupby(["date"])
     for group in grouped_by_ts.groups:

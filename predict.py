@@ -12,13 +12,15 @@ def rev_pos(predicts):
         converted = 87 - int(round(pred[0]))
         if converted < ord('A') or converted > ord('Z'):
             converted = random.randint(ord('A'), ord('Z'))
-        pred_ = [chr(converted), int(round(pred[1]))]
+        y_predict = str(int(round(pred[1])))
+        y_predict = y_predict.zfill(2)
+        pred_ = chr(converted) + "" + y_predict
         vals.append(pred_)
     return vals
 
 
 def predict(model, X):
-    return model.predict(X)
+    return rev_pos(model.predict(X))
 
 
 def predict_all(csv_file, model_path="data/rssi.hd5"):
