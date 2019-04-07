@@ -33,7 +33,7 @@ def echo(ws):
     while True:
         try:
             data = generator.get_next()
-            ws.send(json.dumps(list(data.T.to_dict().values())))
+            ws.send(json.dumps(data.to_json(orient='records')))
             sleep(1)
             counter += 1
         except WebSocketError:
