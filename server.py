@@ -12,17 +12,28 @@ from config import GENERATOR
 
 @route('/static/<filename>')
 def server_static_html(filename):
-    return static_file(filename, root='./html/')
+    return static_file(filename, root='./static/html/')
 
 
 @route('/static/css/<filename>')
 def server_static(filename):
-    return static_file(filename, root='./css/')
-
+    return static_file(filename, root='./static/css/')
 
 @route('/static/js/<filename>')
 def server_static(filename):
-    return static_file(filename, root='./js/')
+    return static_file(filename, root='./static/js/')
+
+@route('/static/lib/js/<filename>')
+def server_static(filename):
+    return static_file(filename, root='./static/lib/js')
+
+@route('/static/lib/css/<filename>')
+def server_static(filename):
+    return static_file(filename, root='./static/lib/css')
+
+@route('/static/assets/<filename>')
+def server_static(filename):
+    return static_file(filename, root='./static/assets/')
 
 
 @get('/websocket', apply=[websocket])

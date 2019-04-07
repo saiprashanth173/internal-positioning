@@ -41,5 +41,4 @@ class CSVGenerator(BaseGenerator):
     def get_next(self):
         next_chunk = self.chunks[self.get_next_counter % len(self.chunks)]
         self.get_next_counter += 1
-        print(next_chunk)
         return next_chunk
