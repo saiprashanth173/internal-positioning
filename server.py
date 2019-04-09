@@ -36,7 +36,7 @@ def server_static(filename):
     return static_file(filename, root='./static/assets/')
 
 
-@get('/websocket', apply=[websocket])
+@get('/easy', apply=[websocket])
 def echo(ws):
     Generator = getattr(generators, GENERATOR)
     generator = Generator()
