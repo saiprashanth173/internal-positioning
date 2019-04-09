@@ -1,9 +1,6 @@
 function connect() {
     if ("WebSocket" in window) {
-
         var ws = new WebSocket("ws://127.0.0.1:8080/easy");
-
-
         ws.onmessage = render;
         ws.onclose = function () {
             // websocket is closed.

@@ -55,15 +55,13 @@ def echo(ws):
 
 @get('/multibuilding', apply=[websocket])
 def multiple_building(ws):
-    counter = 0
     Generator = getattr(generators, MULTI_GENERATOR)
     generator = Generator()
     while True:
         try:
             data = generator.get_next()
             ws.send(json.dumps(data.to_json(orient='records')))
-            sleep(1)
-            counter += 1
+            sleep(0.005)
         except WebSocketError:
             break
 
