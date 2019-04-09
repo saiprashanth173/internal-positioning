@@ -38,17 +38,20 @@ function render(evt) {
         // if(received_msg.FLOOR == 0) {
         // var latLng = L.utm({x: (received_msg.LONGITUDE/1.3+243888), y: (received_msg.LATITUDE/1.3+689237), zone: 31, southHemi: false}).latLng();
         var latLng = L.utm({x: (received_msg.LONGITUDE/1.275+244004), y: (received_msg.LATITUDE/1.275+615862), zone: 31, southHemi: false}).latLng();
-        userInfoDict[received_msg.USERID] = {data: received_msg, latLng: latLng};
+        received_msg.LONGITUDE = latLng.lng;
+        received_msg.LATITUDE = latLng.lat;
+        received_msg.TIMESTAMP = (new Date(received_msg.TIMESTAMP*1000)).toString();
+        userInfoDict[received_msg.USERID] = received_msg;
         // }
     }
     console.log(userInfoDict);
     for(userID in userInfoDict) {
         var userInfo = userInfoDict[userID];
         if(userID in markers) {
-            markers[userID].setPosition({lat: userInfo.latLng.lat, lng: userInfo.latLng.lng})
+            markers[userID].setPosition({lat: userInfo.LATITUDE, lng: userInfo.LONGITUDE})
         } else {
             var marker = new SlidingMarker({
-                position: {lat: userInfo.latLng.lat, lng: userInfo.latLng.lng},
+                position: {lat: userInfo.LATITUDE, lng: userInfo.LONGITUDE},
                 map: map,
                 title: userID.toString(),
                 icon: personIcon,
@@ -80,7 +83,7 @@ $('#lookup').on('click', function(event) {
     var userID = $('#userID').val();
     if(userID in userInfoDict) {
         $('#error-text').hide();
-        $('#lookup-result').html("<pre><code>" + JSON.stringify(userInfoDict[userID].data, null, 4) + "</pre></code>");
+        $('#lookup-result').html("<pre><code>" + JSON.stringify(userInfoDict[userID], null, 4) + "</pre></code>");
         markers[userID].setAnimation(google.maps.Animation.BOUNCE);
         setTimeout(function(){ markers[userID].setAnimation(null); }, 1500);
     } else {
