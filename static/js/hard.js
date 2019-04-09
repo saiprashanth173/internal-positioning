@@ -35,17 +35,19 @@ function render(evt) {
     console.log(received_messages);
     for(key in received_messages) {
         received_msg = received_messages[key];
-        var latLng = L.utm({x: (received_msg.LONGITUDE/1.3+243890), y: (received_msg.LATITUDE/1.3+689238), zone: 31, southHemi: false}).latLng();
+        var latLng = L.utm({x: (received_msg.LONGITUDE/1.3+243888), y: (received_msg.LATITUDE/1.3+689237), zone: 31, southHemi: false}).latLng();
+        var latLng = L.utm({x: (received_msg.LONGITUDE/1.275+244004), y: (received_msg.LATITUDE/1.275+615862), zone: 31, southHemi: false}).latLng();
         // console.log(
             // latLng
         // )
-        if(received_msg.FLOOR==0){
+        if(received_msg.FLOOR == 0) {
             var marker = new google.maps.Marker({
                 position: {lat: latLng.lat, lng: latLng.lng},
                 map: map,
                 title: received_msg.BUILDINGID.toString()
             });
         }
+
     }
         // for (let i = 0; i < received_msg.length; i++) {
         // const x = received_msg[i];
