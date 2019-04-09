@@ -7,3 +7,7 @@ DATA_FRAME = pd.concat([pd.read_csv(f, encoding='latin1') for f in glob.glob(DAT
                        ignore_index=True)
 
 MODEL_PATH = "data/rssi.hd5"
+
+MULTI_DATA_DIR = "data/uji_data"
+MULTI_GENERATOR = "CSVMultiGenerator"
+MULTI_DATA_FRAME = pd.concat([pd.read_csv(f, encoding='latin1') for f in glob.glob(MULTI_DATA_DIR + '/*.csv')])

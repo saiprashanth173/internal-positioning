@@ -1,6 +1,8 @@
+import time
+
 from keras.engine.saving import load_model
 
-from config import DATA_FRAME, MODEL_PATH
+from config import DATA_FRAME, MODEL_PATH, MULTI_DATA_FRAME
 import pandas as pd
 import time
 from predict import predict
@@ -37,6 +39,25 @@ class CSVGenerator(BaseGenerator):
     df["location"] = pd.DataFrame(predict(model, df.iloc[:, 2:]), index=df.index)
     df['date'] = pd.to_datetime(df.date)
     grouped_by_ts = df.groupby(["date"])
+    for group in grouped_by_ts.groups:
+        DATA_CHUNKS.append(grouped_by_ts.get_group(group))
+
+    def __init__(self):
+        self.get_next_counter = int(time.time())
+        self.chunks = self.DATA_CHUNKS
+
+    def get_next(self):
+        next_chunk = self.chunks[self.get_next_counter % len(self.chunks)]
+        self.get_next_counter += 1
+        return next_chunk
+
+
+class CSVMultiGenerator(BaseGenerator):
+    DATA_CHUNKS = []
+    df = MULTI_DATA_FRAME
+    df = df[["LONGITUDE", "LATITUDE", "FLOOR", "BUILDINGID", "SPACEID", "RELATIVEPOSITION", "USERID", "PHONEID",
+             "TIMESTAMP"]]
+    grouped_by_ts = df.groupby(["TIMESTAMP"])
     for group in grouped_by_ts.groups:
         DATA_CHUNKS.append(grouped_by_ts.get_group(group))
 

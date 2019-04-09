@@ -7,7 +7,7 @@ from gevent import sleep
 from geventwebsocket import WebSocketError
 
 import generators
-from config import GENERATOR
+from config import GENERATOR, MULTI_GENERATOR
 
 
 @route('/static/<filename>')
@@ -19,17 +19,21 @@ def server_static_html(filename):
 def server_static(filename):
     return static_file(filename, root='./static/css/')
 
+
 @route('/static/js/<filename>')
 def server_static(filename):
     return static_file(filename, root='./static/js/')
+
 
 @route('/static/lib/js/<filename>')
 def server_static(filename):
     return static_file(filename, root='./static/lib/js')
 
+
 @route('/static/lib/css/<filename>')
 def server_static(filename):
     return static_file(filename, root='./static/lib/css')
+
 
 @route('/static/assets/<filename>')
 def server_static(filename):
@@ -45,6 +49,21 @@ def echo(ws):
             data = generator.get_next()
             ws.send(json.dumps(data.to_json(orient='records')))
             sleep(1)
+        except WebSocketError:
+            break
+
+
+@get('/multibuilding', apply=[websocket])
+def multiple_building(ws):
+    counter = 0
+    Generator = getattr(generators, MULTI_GENERATOR)
+    generator = Generator()
+    while True:
+        try:
+            data = generator.get_next()
+            ws.send(json.dumps(data.to_json(orient='records')))
+            sleep(1)
+            counter += 1
         except WebSocketError:
             break
 
