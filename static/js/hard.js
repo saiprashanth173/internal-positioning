@@ -14,13 +14,13 @@ function connect() {
 }
 
 var map = new google.maps.Map(document.getElementById('map'), {
-    center: {lat: 39.993, lng: -0.068},
+    center: {lat: 39.9927, lng: -0.068},
     zoom: 18
 });
 
 var personIcon = {
     url: "assets/person_icon.png", // url
-    scaledSize: new google.maps.Size(50, 50), // scaled size
+    scaledSize: new google.maps.Size(40, 40), // scaled size
     // origin: new google.maps.Point(0,0), // origin
     // anchor: new google.maps.Point(0, 0) // anchor
 };
@@ -73,3 +73,19 @@ function render(evt) {
 window.onload = function () {
     connect();
 };
+
+
+$('#lookup').on('click', function(event) {
+    event.preventDefault();
+    var userID = $('#userID').val();
+    if(userID in userInfoDict) {
+        $('#error-text').hide();
+        $('#lookup-result').html("<pre><code>" + JSON.stringify(userInfoDict[userID].data, null, 4) + "</pre></code>");
+        markers[userID].setAnimation(google.maps.Animation.BOUNCE);
+        setTimeout(function(){ markers[userID].setAnimation(null); }, 1500);
+    } else {
+        $('#error-text').show();
+        $('#lookup-result').html("");
+    }
+  });
+

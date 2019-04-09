@@ -9,15 +9,34 @@
 <body>
     
     
-    <div class="container-fluid">
-        <div id="content">
-            
-        </div>
-    </div>
+
     
     <div id="Map">
         <div id="map"></div>
     </div>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-6">
+                <form>
+                    <div class="form-group">
+                        <label for="userID">Lookup User ID</label>
+                        <input type="number" class="form-control" id="userID" placeholder="Enter a User ID to search">
+                    </div>
+                    <div class="form-group">
+                        <button id="lookup" class="btn btn-primary">Lookup</button>
+                    </div>
+                    <div class="form-group">
+                        <small id="error-text" class="text-danger">No info for this user yet.</small>     
+                    </div> 
+                </form>
+            </div>
+            <div class="col-lg-6">
+                <div id="lookup-result"></div>
+            </div>
+        </div>
+    </div>
+
     
     <script src="https://unpkg.com/leaflet@1.3.1/dist/leaflet-src.js" crossorigin=""></script>
     <script src="lib/js/L.LatLng.UTM.js"></script>
