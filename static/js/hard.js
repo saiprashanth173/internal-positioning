@@ -18,36 +18,45 @@ var map = new google.maps.Map(document.getElementById('map'), {
     zoom: 18
 });
 
-  // {% for i in range(result|length) %}
-  // var marker = new google.maps.Marker({
-  //   position: { lat: {{result[i][names_dict["LATITUDE"]]}}, lng: {{result[i][names_dict["LONGITUDE"]]}} },
-  //   label: "{{i+1}}",
-  //   map: map
-  // });
-  // {% endfor %}
+var personIcon = {
+    url: "assets/person_icon.png", // url
+    scaledSize: new google.maps.Size(50, 50), // scaled size
+    // origin: new google.maps.Point(0,0), // origin
+    // anchor: new google.maps.Point(0, 0) // anchor
+};
 
 /*
 --------- Replace this method with actual rendering logic ----------
  */
-// , 267070, 398375
+//
+var userInfoDict = {};
+var markers = {};
 function render(evt) {
     const received_messages = JSON.parse(JSON.parse(evt.data));
-    console.log(received_messages);
     for(key in received_messages) {
         received_msg = received_messages[key];
-        var latLng = L.utm({x: (received_msg.LONGITUDE/1.3+243888), y: (received_msg.LATITUDE/1.3+689237), zone: 31, southHemi: false}).latLng();
+        // if(received_msg.FLOOR == 0) {
+        // var latLng = L.utm({x: (received_msg.LONGITUDE/1.3+243888), y: (received_msg.LATITUDE/1.3+689237), zone: 31, southHemi: false}).latLng();
         var latLng = L.utm({x: (received_msg.LONGITUDE/1.275+244004), y: (received_msg.LATITUDE/1.275+615862), zone: 31, southHemi: false}).latLng();
-        // console.log(
-            // latLng
-        // )
-        if(received_msg.FLOOR == 0) {
-            var marker = new google.maps.Marker({
-                position: {lat: latLng.lat, lng: latLng.lng},
+        userInfoDict[received_msg.USERID] = {data: received_msg, latLng: latLng};
+        // }
+    }
+    console.log(userInfoDict);
+    for(userID in userInfoDict) {
+        var userInfo = userInfoDict[userID];
+        if(userID in markers) {
+            markers[userID].setPosition({lat: userInfo.latLng.lat, lng: userInfo.latLng.lng})
+        } else {
+            var marker = new SlidingMarker({
+                position: {lat: userInfo.latLng.lat, lng: userInfo.latLng.lng},
                 map: map,
-                title: received_msg.BUILDINGID.toString()
+                title: userID.toString(),
+                icon: personIcon,
+                duration: 2000,
+                easing: "easeOutExpo"
             });
+            markers[userID] = marker;
         }
-
     }
         // for (let i = 0; i < received_msg.length; i++) {
         // const x = received_msg[i];

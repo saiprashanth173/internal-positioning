@@ -6,7 +6,7 @@ from config import DATA_FRAME, MODEL_PATH, MULTI_DATA_FRAME
 import pandas as pd
 import time
 from predict import predict
-
+import random
 
 class BaseGenerator:
     def __init__(self):
@@ -62,7 +62,8 @@ class CSVMultiGenerator(BaseGenerator):
         DATA_CHUNKS.append(grouped_by_ts.get_group(group))
 
     def __init__(self):
-        self.get_next_counter = int(time.time())
+        random.seed(0)
+        self.get_next_counter = random.randint(0, 100000)
         self.chunks = self.DATA_CHUNKS
 
     def get_next(self):

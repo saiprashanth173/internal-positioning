@@ -61,7 +61,7 @@ def multiple_building(ws):
         try:
             data = generator.get_next()
             ws.send(json.dumps(data.to_json(orient='records')))
-            sleep(0.005)
+            sleep(1)
         except WebSocketError:
             break
 
