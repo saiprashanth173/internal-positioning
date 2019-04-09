@@ -2,7 +2,7 @@ from keras.engine.saving import load_model
 
 from config import DATA_FRAME, MODEL_PATH
 import pandas as pd
-
+import time
 from predict import predict
 
 
@@ -41,7 +41,7 @@ class CSVGenerator(BaseGenerator):
         DATA_CHUNKS.append(grouped_by_ts.get_group(group))
 
     def __init__(self):
-        self.get_next_counter = 0
+        self.get_next_counter = int(time.time())
         self.chunks = self.DATA_CHUNKS
 
     def get_next(self):

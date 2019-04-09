@@ -38,7 +38,6 @@ def server_static(filename):
 
 @get('/websocket', apply=[websocket])
 def echo(ws):
-    counter = 0
     Generator = getattr(generators, GENERATOR)
     generator = Generator()
     while True:
@@ -46,7 +45,6 @@ def echo(ws):
             data = generator.get_next()
             ws.send(json.dumps(data.to_json(orient='records')))
             sleep(1)
-            counter += 1
         except WebSocketError:
             break
 

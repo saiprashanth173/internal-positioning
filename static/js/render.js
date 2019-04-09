@@ -32,7 +32,6 @@ d3.xml("assets/iBeacon_Layout_Enhanced.svg", "image/svg+xml", function(xml) {
         this.appendChild(importedNode);
     });
     svg = d3.select("svg");
-    circle = svg.append("circle").attr("cx", 0).attr("cy", 0).attr("r", radius).style("fill", "DeepPink");
 });
 
 /*
@@ -46,6 +45,8 @@ function render(evt) {
     var delta_y = parseInt(loc.substring(1))-1;
     if(circle) {
         circle.transition().attr("transform", "translate(" + (base_x+delta_x*multiplier) + "," + (base_y+delta_y*multiplier) + ")").duration(2000);
+    } else if(svg) {
+        circle = svg.append("circle").attr("cx", 0).attr("cy", 0).attr("r", radius).style("fill", "DeepPink");
     }
         // for (let i = 0; i < received_msg.length; i++) {
         // const x = received_msg[i];
