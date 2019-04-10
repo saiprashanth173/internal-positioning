@@ -5,6 +5,8 @@ from keras.engine.saving import load_model
 from config import DATA_FRAME, MODEL_PATH, MULTI_DATA_FRAME, PREDICTION_MODEL
 import pandas as pd
 import time
+
+from db import get_latest_positions
 from predict import predict
 import random
 import train_lat_long_detector
@@ -76,3 +78,12 @@ class CSVMultiGenerator(BaseGenerator):
         next_chunk = self.chunks[self.get_next_counter % len(self.chunks)]
         self.get_next_counter += 1
         return next_chunk
+
+
+class PGGenerator(BaseGenerator):
+
+    def __init__(self):
+        pass
+
+    def get_next(self):
+        return get_latest_positions()
