@@ -2,11 +2,15 @@ import time
 
 from keras.engine.saving import load_model
 
-from config import DATA_FRAME, MODEL_PATH, MULTI_DATA_FRAME
+from config import DATA_FRAME, MODEL_PATH, MULTI_DATA_FRAME, PREDICTION_MODEL
 import pandas as pd
 import time
+
+from db import get_latest_positions
 from predict import predict
 import random
+import train_lat_long_detector
+
 
 class BaseGenerator:
     def __init__(self):
@@ -54,7 +58,11 @@ class CSVGenerator(BaseGenerator):
 
 class CSVMultiGenerator(BaseGenerator):
     DATA_CHUNKS = []
+    model_class = getattr(train_lat_long_detector, PREDICTION_MODEL)
+    model = model_class()
     df = MULTI_DATA_FRAME
+    predictions = model.predict(train_lat_long_detector.get_x_y_from_df(df)[0])
+    df[["LONGITUDE", "LATITUDE", "FLOOR", "BUILDINGID"]] = pd.DataFrame(predictions, index=df.index)
     df = df[["LONGITUDE", "LATITUDE", "FLOOR", "BUILDINGID", "SPACEID", "RELATIVEPOSITION", "USERID", "PHONEID",
              "TIMESTAMP"]]
     grouped_by_ts = df.groupby(["TIMESTAMP"])
@@ -70,3 +78,12 @@ class CSVMultiGenerator(BaseGenerator):
         next_chunk = self.chunks[self.get_next_counter % len(self.chunks)]
         self.get_next_counter += 1
         return next_chunk
+
+
+class PGGenerator(BaseGenerator):
+
+    def __init__(self):
+        pass
+
+    def get_next(self):
+        return get_latest_positions()
