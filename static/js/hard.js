@@ -15,7 +15,7 @@ function connect() {
 
 var map = new google.maps.Map(document.getElementById('map'), {
     center: {lat: 39.9927, lng: -0.068},
-    zoom: 18
+    zoom: 18,
 });
 
 var personIcon = {
@@ -78,8 +78,7 @@ window.onload = function () {
 };
 
 
-$('#lookup').on('click', function(event) {
-    event.preventDefault();
+function showDetails() {
     var userID = $('#userID').val();
     if(userID in userInfoDict) {
         $('#error-text').hide();
@@ -90,5 +89,10 @@ $('#lookup').on('click', function(event) {
         $('#error-text').show();
         $('#lookup-result').html("");
     }
-  });
+}
 
+
+$('#lookup').on('click', function(event) {
+    event.preventDefault();
+    showDetails();
+  });
