@@ -7,7 +7,7 @@ from gevent import sleep
 from geventwebsocket import WebSocketError
 
 import generators
-from config import GENERATOR, MULTI_GENERATOR
+from config import GENERATOR, MULTI_GENERATOR, PG_GENERATOR
 
 
 @route('/static/<filename>')
@@ -41,7 +41,7 @@ def server_static(filename):
 
 
 @get('/easy', apply=[websocket])
-def echo(ws):
+def easy(ws):
     Generator = getattr(generators, GENERATOR)
     generator = Generator()
     while True:
@@ -53,8 +53,8 @@ def echo(ws):
             break
 
 
-@get('/multibuilding', apply=[websocket])
-def multiple_building(ws):
+@get('/medium', apply=[websocket])
+def medium(ws):
     Generator = getattr(generators, MULTI_GENERATOR)
     generator = Generator()
     while True:
@@ -65,6 +65,17 @@ def multiple_building(ws):
         except WebSocketError:
             break
 
+@get('/hard', apply=[websocket])
+def hard(ws):
+    Generator = getattr(generators, PG_GENERATOR)
+    generator = Generator()
+    while True:
+        try:
+            data = generator.get_next()
+            ws.send(json.dumps(data.to_json(orient='records')))
+            sleep(1)
+        except WebSocketError:
+            break
 
 if __name__ == "__main__":
     import argparse

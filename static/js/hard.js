@@ -1,10 +1,10 @@
 function connect() {
     if ("WebSocket" in window) {
-        var ws = new WebSocket("ws://127.0.0.1:8080/multibuilding");
+        var ws = new WebSocket("ws://127.0.0.1:8080/hard");
         ws.onmessage = render;
         ws.onclose = function () {
             // websocket is closed.
-            // alert("Connection is closed...");
+            alert("Connection is closed...");
         };
     }
     else {

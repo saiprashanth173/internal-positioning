@@ -15,6 +15,7 @@ MULTI_GENERATOR = "CSVMultiGenerator"
 MULTI_DATA_FRAME = pd.concat([pd.read_csv(f, encoding='latin1') for f in glob.glob(MULTI_DATA_DIR + '/*.csv')])
 PREDICTION_MODEL = 'RandomForest'
 
+PG_GENERATOR = "PGGenerator"
 
 def raise_error(variable):
     raise EnvironmentError('The "' + variable + '" configuration must be defined')
