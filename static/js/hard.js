@@ -32,7 +32,7 @@ var personIcon = {
 var userInfoDict = {};
 var markers = {};
 function render(evt) {
-    const received_messages = JSON.parse(JSON.parse(evt.data));
+    const received_messages = JSON.parse(evt.data);
     for(key in received_messages) {
         received_msg = received_messages[key];
         // if(received_msg.FLOOR == 0) {
@@ -61,6 +61,7 @@ function render(evt) {
             markers[userID] = marker;
         }
     }
+    showDetails();
         // for (let i = 0; i < received_msg.length; i++) {
         // const x = received_msg[i];
         // const element = document.getElementById("out");

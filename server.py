@@ -72,7 +72,7 @@ def hard(ws):
     while True:
         try:
             data = generator.get_next()
-            ws.send(json.dumps(data.to_json(orient='records')))
+            ws.send(json.dumps(data))
             sleep(1)
         except WebSocketError:
             break
