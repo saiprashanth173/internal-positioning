@@ -36,6 +36,7 @@ var personIconOld = {
 --------- Replace this method with actual rendering logic ----------
  */
 //
+var lookUpPressed = false;
 var userInfoDict = {};
 var markers = {};
 function render(evt) {
@@ -73,7 +74,9 @@ function render(evt) {
             markers[userID].setIcon(personIcon);
         }
     }
-    showDetails();
+    if(lookUpPressed) {
+        showDetails();
+    }
         // for (let i = 0; i < received_msg.length; i++) {
         // const x = received_msg[i];
         // const element = document.getElementById("out");
@@ -102,10 +105,16 @@ function showDetails() {
         $('#error-text').show();
         $('#lookup-result').html("");
     }
+    lookUpPressed = true;
 }
 
 
 $('#lookup').on('click', function(event) {
     event.preventDefault();
     showDetails();
+  });
+
+  $('#userID').on('input', function(event) {
+    lookUpPressed = false;
+    $('#lookup-result').html("");
   });
