@@ -25,6 +25,13 @@ var personIcon = {
     // anchor: new google.maps.Point(0, 0) // anchor
 };
 
+var personIconOld = {
+    url: "assets/person_icon_old.png", // url
+    scaledSize: new google.maps.Size(40, 40), // scaled size
+    // origin: new google.maps.Point(0,0), // origin
+    // anchor: new google.maps.Point(0, 0) // anchor
+};
+
 /*
 --------- Replace this method with actual rendering logic ----------
  */
@@ -59,6 +66,11 @@ function render(evt) {
                 easing: "easeOutExpo"
             });
             markers[userID] = marker;
+        }
+        if(userInfo.is_old) {
+            markers[userID].setIcon(personIconOld);
+        } else {
+            markers[userID].setIcon(personIcon);
         }
     }
     showDetails();
