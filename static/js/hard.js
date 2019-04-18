@@ -99,7 +99,6 @@ function showDetails() {
     if(userID in userInfoDict) {
         $('#error-text').hide();
         $('#lookup-result').html("<pre><code>" + JSON.stringify(userInfoDict[userID], null, 4) + "</pre></code>");
-        markers[userID].setAnimation(google.maps.Animation.BOUNCE);
         setTimeout(function(){ markers[userID].setAnimation(null); }, 1500);
     } else {
         $('#error-text').show();
@@ -111,6 +110,7 @@ function showDetails() {
 
 $('#lookup').on('click', function(event) {
     event.preventDefault();
+    markers[userID].setAnimation(google.maps.Animation.BOUNCE);
     showDetails();
   });
 
