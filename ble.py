@@ -92,15 +92,33 @@ def get_polygon_center(points):
     center.y /= num
     return center
 
-if __name__ == '__main__' :
+def get_points():
+    p1 = point(4.5, 8.5)
     p2 = point(10, 4)
-    p3 = point(14, 2)
-    p4 = point(18.5, 3.5)
+    p3 = point(14, 4)
+    p4 = point(18.5, 4)
     p5 = point(10, 7)
+    p6 = point(14, 7)
     p7 = point(18.5, 7)
     p8 = point(10, 10)
+    p9 = point(4, 15)
+    p10 = point(10, 15)
+    p11 = point(14, 15)
+    p12 = point(18, 15)
+    p13 = point(23, 15)
+
+    return [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13]
+
+def get_center(circle_list):
+    inner_points = []
+    for p in get_all_intersecting_points(circle_list):
+        inner_points.append(p) 
+    center = get_polygon_center(inner_points)
+    return center
+
+if __name__ == '__main__' :
     #354 I06
-    # r2 = calculate_dist_from_rssi(-70)
+    r2 = calculate_dist_from_rssi(-70)
     # r5 = calculate_dist_from_rssi(-73)
     # r8 = calculate_dist_from_rssi(-82)   
     # c1 = circle(p2, r2)
@@ -136,18 +154,18 @@ if __name__ == '__main__' :
 
     # circle_list = [c1, c2, c3]
 
-    inner_points = []
-    for p in get_all_intersecting_points(circle_list):
-        # if is_contained_in_circles(p, circle_list):
-        inner_points.append(p) 
+    # inner_points = []
+    # for p in get_all_intersecting_points(circle_list):
+    #     # if is_contained_in_circles(p, circle_list):
+    #     inner_points.append(p) 
     
-    center = get_polygon_center(inner_points)
+    # center = get_polygon_center(inner_points)
 
-    in_json = json_data([c1, c2, c3], [p2, p5, p8], center)
+    # in_json = json_data([c1, c2, c3], [p2, p5, p8], center)
 
-    out_json = json.dumps(in_json, sort_keys=True,
-                     indent=4, default=serialize_instance)
+    # out_json = json.dumps(in_json, sort_keys=True,
+    #                  indent=4, default=serialize_instance)
 
-    print(out_json)
+    # print(out_json)
 
-# 10^((x+70)/(10*n)) = 1.73205, 10^((x+73)/(10*n)) = 1.41421
+    # 10^((x+70)/(10*n)) = 1.73205, 10^((x+73)/(10*n)) = 1.41421

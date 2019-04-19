@@ -32,7 +32,7 @@ def create_deep(inp_dim):
     model.add(Dense(50, activation='relu'))
     model.add(Dense(2, activation='relu'))
     # Compile model
-    model.compile(loss='mse', optimizer=Adam(.001), metrics=['mse'])
+    model.compile(loss='mse', optimizer=Adam(.001), metrics=['accuracy'])
     return model
 
 
