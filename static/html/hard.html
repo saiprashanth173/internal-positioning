@@ -20,15 +20,18 @@
             <div class="col-lg-6">
                 <form>
                     <div class="form-group">
-                        <label for="userID">Lookup User ID</label>
+                        <label for="userID">Lookup Employee ID</label>
                         <input type="number" class="form-control" id="userID" placeholder="Enter a User ID to search">
                     </div>
                     <div class="form-group">
-                        <button id="lookup" class="btn btn-primary">Lookup</button>
+                        <button id="lookup" class="btn btn-success">Lookup</button>
                     </div>
                     <div class="form-group">
                         <small id="error-text" class="text-danger">No info for this user yet.</small>     
                     </div> 
+                    <div class="form-group">
+                        <button id="heatmap-button" class="btn btn-success">Show Footprint Heatmap</button>
+                    </div>
                 </form>
             </div>
             <div class="col-lg-6">
@@ -42,7 +45,7 @@
     <script src="lib/js/L.LatLng.UTM.js"></script>
     <script src="lib/js/jquery-3.3.1.min.js"></script>
     <script src="lib/js/jquery.easing.1.3.js"></script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9U4h8a4pgsO-heHY9JuBMytpnJCcHZHk"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9U4h8a4pgsO-heHY9JuBMytpnJCcHZHk&libraries=visualization"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marker-animate-unobtrusive/0.2.8/vendor/markerAnimate.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marker-animate-unobtrusive/0.2.8/SlidingMarker.min.js"></script>
     <!-- <script>SlidingMarker.initializeGlobally();</script>  -->
