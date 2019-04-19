@@ -112,6 +112,7 @@ function showDetails() {
 
 $('#lookup').on('click', function(event) {
     event.preventDefault();
+    var userID = $('#userID').val();
     markers[userID].setAnimation(google.maps.Animation.BOUNCE);
     showDetails();
   });
