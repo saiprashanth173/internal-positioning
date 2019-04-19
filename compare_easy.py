@@ -11,9 +11,15 @@ from pandas import read_csv
 from sklearn.model_selection import train_test_split
 import pickle
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 
 from ble import *
 from train import l2_dist, create_deep, fix_pos
+
+
+
+from numpy.random import seed
+seed(7)
 
 def get_data():
     # Load dataset
@@ -46,6 +52,9 @@ def dump_results():
               callbacks=[es])
 
 
+    preds = model.predict(val_x)
+    l2dists_mean, l2dists = l2_dist((preds[:, 0], preds[:, 1]), (val_y["x"], val_y["y"]))
+    print("Model Error: ", l2dists_mean)
 
     with open('./easy_train_history.pkl', 'wb') as file_pi:
         pickle.dump(history.history, file_pi)
@@ -89,26 +98,32 @@ def generate_graph():
 
     val_tri_preds = pd.DataFrame({'x': val_tri_x_coord, 'y': val_tri_y_coord}, index=val_y.index)
     l2dists_mean, l2dists = l2_dist((val_tri_preds['x'], val_tri_preds['y']), (val_y["x"], val_y["y"]))
-    print(l2dists_mean)
+    print("Triliteration Error: ", l2dists_mean)
+
 ##############################
-    plt.plot(model_history['acc'])
-    plt.plot(model_history['val_acc'])
+    colormap = mpl.cm.Dark2.colors
+
+    plt.plot(model_history['acc'], c=colormap[0])
+    plt.plot(model_history['val_acc'], c=colormap[1])
     plt.title('Easy Case: Model Accuracy')
     plt.ylabel('Accuracy')
     plt.xlabel('Epoch')
     plt.legend(['Training', 'Cross Validation'])
     plt.grid()
-    plt.savefig('Easy_Acc.png')
+    plt.savefig('Easy_Acc.png', dpi=150)
 
     plt.figure()
-    plt.plot(model_history['loss'])
-    plt.plot(model_history['val_loss'])
+
+    epochs = len(model_history['loss'])
+    plt.plot(model_history['loss'], c=colormap[0])
+    plt.plot(model_history['val_loss'], c=colormap[1])
+    plt.plot([l2dists_mean for i in range(1, epochs+1)], c=colormap[2])
     plt.title('Easy Case: Model Loss')
     plt.ylabel('Loss')
     plt.xlabel('Epoch')
-    plt.legend(['Training', 'Cross Validation'])
+    plt.legend(['Training', 'Cross Validation', 'Triliteration'])
     plt.grid()
-    plt.savefig('Easy_Loss.png')
+    plt.savefig('Easy_Loss.png', dpi=150)
 
 if __name__ == "__main__":
     # dump_results()
