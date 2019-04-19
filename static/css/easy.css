@@ -1,9 +1,17 @@
 #vis {
-  text-align: center;
+  background-color: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+body {
   background-color: black;
 }
+
 svg {
-    border: 30px;
+    border-width: 30px;
     border-color: rgb(171, 12, 202);
     border-style: double ridge;
 }

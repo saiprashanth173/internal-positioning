@@ -39,6 +39,7 @@ var personIconOld = {
 var lookUpPressed = false;
 var userInfoDict = {};
 var markers = {};
+var user_history = [];
 function render(evt) {
     const received_messages = JSON.parse(evt.data);
     for(key in received_messages) {
@@ -48,7 +49,8 @@ function render(evt) {
         var latLng = L.utm({x: (received_msg.LONGITUDE/1.275+244004), y: (received_msg.LATITUDE/1.275+615862), zone: 31, southHemi: false}).latLng();
         received_msg.LONGITUDE = latLng.lng;
         received_msg.LATITUDE = latLng.lat;
-        received_msg.TIMESTAMP = (new Date(received_msg.TIMESTAMP*1000)).toString();
+        // received_msg.TIMESTAMP = (new Date(received_msg.TIMESTAMP*1000)).toString();
+        user_history.push(received_msg);
         userInfoDict[received_msg.USERID] = received_msg;
         // }
     }
@@ -118,3 +120,18 @@ $('#lookup').on('click', function(event) {
     lookUpPressed = false;
     $('#lookup-result').html("");
   });
+
+$('#heatmap-button').on('click', function(event){
+    event.preventDefault();
+    var heatmapData = [];
+    for(info of user_history) {
+        console.log(info);
+        var latLng = new google.maps.LatLng(info.LATITUDE, info.LONGITUDE);
+        heatmapData.push(latLng);
+    }
+    var heatmap = new google.maps.visualization.HeatmapLayer({
+        data: heatmapData,
+        dissipating: true,
+        map: map
+    });
+});
