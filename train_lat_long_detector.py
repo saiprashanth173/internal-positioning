@@ -1,21 +1,32 @@
+import bisect
 import os
 from abc import ABCMeta
+from math import sqrt
 
 import numpy as np
 import pandas as pd
 import tensorflow as tf
 import tensorlayer as tl
+from sklearn.decomposition import PCA
 from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.exceptions import NotFittedError
 from sklearn.externals import joblib
-from sklearn.metrics import mean_squared_error, accuracy_score
+from sklearn.metrics import accuracy_score
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error, explained_variance_score
+from sklearn.model_selection import GridSearchCV
+from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVC, SVR
+from xgboost import XGBRegressor, XGBClassifier
 
+CV = 2
+FEATURES = 520
 train_csv_path = './data/uji_data/1478167720_9233432_trainingData.csv'
-valid_csv_path = './data/uji_data/1478167720_9233432_trainingData.csv'
+valid_csv_path = './data/uji_data/1478167721_0345678_validationData.csv'
 longitude_scaler_encoder = './data/uji_models/longitude.pkl'
 latitude_scaler_encoder = './data/uji_models/latitude.pkl'
+pca_encoder = './data/uji_models/pca.pkl'
 
 # Normalize scaler
 if os.path.exists(longitude_scaler_encoder) and os.path.exists(latitude_scaler_encoder):
@@ -24,6 +35,11 @@ if os.path.exists(longitude_scaler_encoder) and os.path.exists(latitude_scaler_e
 else:
     longitude_scaler = MinMaxScaler()
     latitude_scaler = MinMaxScaler()
+
+if os.path.exists(pca_encoder):
+    pca = joblib.load(pca_encoder)
+else:
+    pca = PCA()
 
 
 def get_x_y_from_df(df):
@@ -59,15 +75,25 @@ def load(train_file_name, valid_file_name):
     return training_x, training_y, validation_x, validation_y, testing_x, testing_y
 
 
-def normalizeX(arr):
-    res = np.copy(arr).astype(np.float)
-    for i in range(np.shape(res)[0]):
-        for j in range(np.shape(res)[1]):
-            if res[i][j] == 100:
-                res[i][j] = 0
-            else:
-                res[i][j] = -0.01 * res[i][j]
-    return res
+def normalizeX(arr, expl_var=0.80):
+    global FEATURES
+    return arr
+    # res = np.copy(arr).astype(np.float)
+    # # res[res == 100] = 0
+    # # res = -0.01 * res
+    # # return res
+    # try:
+    #     transformed = pca.transform(arr)
+    #     var = pca.explained_variance_ratio_.cumsum()
+    #     FEATURES = bisect.bisect(var, expl_var)
+    #     print(arr.shape, transformed.shape)
+    #     return transformed[:, :FEATURES + 1]
+    # except NotFittedError as e:
+    #     pca.fit(res)
+    #     joblib.dump(pca, pca_encoder)
+    #     var = pca.explained_variance_ratio_.cumsum()
+    #     FEATURES = bisect.bisect(var, expl_var)
+    # return pca.transform(res)[:, : FEATURES + 1]
 
 
 def normalizeY(longitude_arr, latitude_arr):
@@ -164,8 +190,8 @@ class AbstractModel(object):
         self._preprocess(x, y)
 
         # Train the model
-        print
-        "<< training >>"
+        print("<< training >>")
+        print(self.normalize_x.shape)
         self.longitude_regression_model.fit(self.normalize_x, self.longitude_normalize_y)
         self.latitude_regression_model.fit(self.normalize_x, self.latitude_normalize_y)
         self.floor_classifier.fit(self.normalize_x, self.floorID_y)
@@ -206,11 +232,16 @@ class AbstractModel(object):
         _y = self.predict(x)
         print("Longitude: ", mean_squared_error(_y[:, 0], y[:, 0]))
         print("Latitude: ", mean_squared_error(_y[:, 1], y[:, 1]))
-
+        root_error = np.sqrt(((_y[:, 0] - y[:, 0]) ** 2 + (_y[:, 1] - y[:, 1]) ** 2))
+        print("Mean error: ", root_error.mean())
+        print("Max error: ", np.max(root_error))
+        print("Min error: ", np.min(root_error))
         building_error = len(y) - np.sum(np.equal(np.round(_y[:, 3]), y[:, 3]))
         floor_error = len(y) - np.sum(np.equal(np.round(_y[:, 2]), y[:, 2]))
-        print("Building error: ", building_error)
-        print("Floor error: ", floor_error)
+        building_accuracy = accuracy_score(y[:, 3], _y[:, 3])
+        floor_accuracy = accuracy_score(y[:, 2], _y[:, 2])
+        print("Building error: ", building_error, " Building Accuracy: ", building_accuracy)
+        print("Floor error: ", floor_error, "Building Accuracy: ", floor_accuracy)
 
         longitude_error = np.sum(np.sqrt(np.square(_y[:, 0] - y[:, 0])))
         latitude_error = np.sum(np.sqrt(np.square(_y[:, 1] - y[:, 1])))
@@ -225,9 +256,14 @@ class SVM(AbstractModel):
     floor_classifier_save_path = './data/uji_models/svm_floor.pkl'
     building_classifier_save_path = './data/uji_models/svm_building.pkl'
 
-    def __init__(self):
-        self.longitude_regression_model = SVR(verbose=True)
-        self.latitude_regression_model = SVR(verbose=True)
+    def __init__(self, i=5):
+        Cs = [0.001, 0.01]
+        gammas = [0.001, 0.01]
+        param_grid = {'C': Cs, 'gamma': gammas, 'kernel': ['linear', 'rbf']}
+        longitude_reg_model = GridSearchCV(SVR(), param_grid, cv=CV, verbose=True)
+        lat_reg_model = GridSearchCV(SVR(kernel='rbf'), param_grid, cv=CV)
+        self.longitude_regression_model = longitude_reg_model
+        self.latitude_regression_model = lat_reg_model
         self.floor_classifier = SVC(verbose=True)
         self.building_classifier = SVC(verbose=True)
 
@@ -260,6 +296,34 @@ class GradientBoostingDecisionTree(AbstractModel):
         self.building_classifier = GradientBoostingClassifier()
 
 
+class KNN(AbstractModel):
+    # Model save path
+    longitude_regression_model_save_path = './data/uji_models/knnb_long.pkl'
+    latitude_regression_model_save_path = './data/uji_models/knnb_lat.pkl'
+    floor_classifier_save_path = './data/uji_models/knn_floor.pkl'
+    building_classifier_save_path = './data/uji_models/knn_building.pkl'
+
+    def __init__(self):
+        self.longitude_regression_model = KNeighborsRegressor()
+        self.latitude_regression_model = KNeighborsRegressor()
+        self.floor_classifier = XGBClassifier()
+        self.building_classifier = XGBClassifier()
+
+
+class XGradientBoostingDecisionTree(AbstractModel):
+    # Model save path
+    longitude_regression_model_save_path = './data/uji_models/xgb_long.pkl'
+    latitude_regression_model_save_path = './data/uji_models/xgb_lat.pkl'
+    floor_classifier_save_path = './data/uji_models/xgb_floor.pkl'
+    building_classifier_save_path = './data/uji_models/xgb_building.pkl'
+
+    def __init__(self):
+        self.longitude_regression_model = XGBRegressor()
+        self.latitude_regression_model = XGBRegressor()
+        self.floor_classifier = XGBClassifier()
+        self.building_classifier = XGBClassifier()
+
+
 class ComplexDNN(AbstractModel):
     # Model save path
     longitude_regression_model_save_path = './data/uji_models/complexDnn_long.pkl'
@@ -271,7 +335,7 @@ class ComplexDNN(AbstractModel):
 
     def __init__(self):
         self.sess = tf.InteractiveSession()
-        self.x = tf.placeholder(tf.float32, [None, 520])
+        self.x = tf.placeholder(tf.float32, [None, FEATURES])
         self.locating_y = tf.placeholder(tf.float32, [None, 2])
         self.building_y = tf.placeholder(tf.float32, [None, 1])
         self.floor_y = tf.placeholder(tf.float32, [None, 1])
@@ -313,7 +377,7 @@ class ComplexDNN(AbstractModel):
         self.floor_cost = tl.cost.mean_squared_error(self.floor_y, self.floor_predict_y)
         self.floor_optimize = tf.train.AdamOptimizer().minimize(self.floor_cost, var_list=floor_network.all_params)
 
-    def fit(self, x, y, epoch=2, batch_size=256):
+    def fit(self, x, y, epoch=10, batch_size=256):
         # Data pre-processing
         self._preprocess(x, y)
 
@@ -327,16 +391,14 @@ class ComplexDNN(AbstractModel):
         self.sess.run(tf.global_variables_initializer())
 
         for k in range(10):
-            print
-            "-------- epoch ", k, ' ---------'
-            print
-            "\n< position >\n"
+            print("-------- epoch ", k, ' ---------')
+            print("\n< position >\n")
             for i in range(epoch):
                 mini_x = getMiniBatch(self.normalize_x, batch_size)
                 mini_y = getMiniBatch(location_pair, batch_size)
                 feed_dict = {
-                    self.x: mini_x.next(),
-                    self.locating_y: mini_y.next()
+                    self.x: next(mini_x),
+                    self.locating_y: next(mini_y)
                 }
                 _cost, _, _output = self.sess.run([self.locating_cost, self.locating_optimize, self.locating_predict_y],
                                                   feed_dict=feed_dict)
@@ -350,8 +412,8 @@ class ComplexDNN(AbstractModel):
                 mini_x = getMiniBatch(self.normalize_x, batch_size)
                 mini_y = getMiniBatch(np.expand_dims(self.buildingID_y, -1), batch_size)
                 feed_dict = {
-                    self.x: mini_x.next(),
-                    self.building_y: mini_y.next()
+                    self.x: next(mini_x),
+                    self.building_y: next(mini_y)
                 }
                 _cost, _, _output = self.sess.run([self.building_cost, self.building_optimize, self.building_predict_y],
                                                   feed_dict=feed_dict)
@@ -367,8 +429,8 @@ class ComplexDNN(AbstractModel):
                 mini_x = getMiniBatch(self.normalize_x, batch_size)
                 mini_y = getMiniBatch(np.expand_dims(self.floorID_y, -1), batch_size)
                 feed_dict = {
-                    self.x: mini_x.next(),
-                    self.floor_y: mini_y.next()
+                    self.x: next(mini_x),
+                    self.floor_y: next(mini_y)
                 }
                 _cost, _, _output = self.sess.run([self.floor_cost, self.floor_optimize, self.floor_predict_y],
                                                   feed_dict=feed_dict)
@@ -422,22 +484,42 @@ if __name__ == '__main__':
     # Load data
     train_x, train_y, valid_x, valid_y, test_x, test_y = load(train_csv_path, valid_csv_path)
 
-    # Training
+    # # # Training
     # svm_model = SVM()
     # svm_model.fit(train_x, train_y)
+    # model = svm_model
     # print('SVM eror: ', svm_model.error(test_x, test_y))
 
-    rf_model = RandomForest()
-    rf_model.fit(train_x, train_y)
-    print('Random forest error: ', rf_model.error(test_x, test_y))
+    # rf_model = RandomForest()
+    # rf_model.fit(train_x, train_y)
+    # model = rf_model
 
-    # gbdt_model = GradientBoostingDecisionTree()
+    # gbdt_model = XGradientBoostingDecisionTree()
     # gbdt_model.fit(train_x, train_y)
     # print('Gradient boosting decision tree error: ', gbdt_model.error(test_x, test_y))
-
-    # dnn_model = ComplexDNN()
-    # dnn_model.fit(train_x, train_y)
+    # model = gbdt_model
+    dnn_model = ComplexDNN()
+    dnn_model.fit(train_x, train_y)
+    model = dnn_model
 
     # Print testing result
 
-    # print('DNN error: ', dnn_model.error(test_x, test_y))
+    print('DNN error: ', dnn_model.error(test_x, test_y))
+
+    predicts = model.predict(valid_x)
+    print("Validation Accuracy!!!!")
+    print("Root Mean Square Error", sqrt(mean_squared_error(predicts[:, :2], valid_y[:, :2])))
+    print("Mean Square Error", mean_squared_error(predicts[:, :2], valid_y[:, :2]))
+    print("Mean Absolute Error", mean_absolute_error(predicts[:, :2], valid_y[:, :2]))
+    print("R2", r2_score(predicts[:, :2], valid_y[:, :2]))
+    print("Explained Variance", explained_variance_score(predicts[:, :2], valid_y[:, :2]))
+    print('Random forest error: ', model.error(test_x, test_y))
+
+    print("Test Accuracy!!!!")
+    predicts = model.predict(test_x)
+    print("Root Mean Square Error", sqrt(mean_squared_error(predicts[:, :2], test_y[:, :2])))
+    print("Mean Square Error", mean_squared_error(predicts[:, :2], test_y[:, :2]))
+    print("Mean Absolute Error", mean_absolute_error(predicts[:, :2], test_y[:, :2]))
+    print("R2", r2_score(predicts[:, :2], test_y[:, :2]))
+    print("Explained Variance", explained_variance_score(predicts[:, :2], test_y[:, :2]))
+    print('Random forest error: ', model.error(test_x, test_y))

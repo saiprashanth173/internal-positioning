@@ -1,6 +1,6 @@
 import json
 
-from bottle import static_file, route, run, get
+from bottle import static_file, route, run, get, request
 from bottle_websocket import GeventWebSocketServer
 from bottle_websocket import websocket
 from gevent import sleep
@@ -65,17 +65,20 @@ def medium(ws):
         except WebSocketError:
             break
 
+
 @get('/hard', apply=[websocket])
 def hard(ws):
     Generator = getattr(generators, PG_GENERATOR)
     generator = Generator()
     while True:
         try:
-            data = generator.get_next()
+            user_id = request.query.get('user_id', None)
+            data = generator.get_next(user_id)
             ws.send(json.dumps(data))
             sleep(1)
         except WebSocketError:
             break
+
 
 if __name__ == "__main__":
     import argparse

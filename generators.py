@@ -85,5 +85,5 @@ class PGGenerator(BaseGenerator):
     def __init__(self):
         pass
 
-    def get_next(self):
-        return get_latest_positions()
+    def get_next(self, user_id=None):
+        return get_latest_positions(user_id)

@@ -41,8 +41,13 @@ def insert_positions(positions):
         cur.close()
 
 
-def get_latest_positions():
+def get_latest_positions(user_id):
     dict_cur = connection.cursor(cursor_factory=RealDictCursor)
-    dict_cur.execute(
-        '''SELECT distinct on (userid) longitude as "LONGITUDE", latitude as "LATITUDE", userid as "USERID", floor as "FLOOR", buildingid as "BUILDINGID", to_char(time_stamp, 'MM-DD-YYYY HH12:MI:SS') as TIMESTAMP, EXTRACT(EPOCH FROM ( NOW() - TIME_STAMP)) > 60 as is_old  FROM positions ORDER BY userid, TIME_STAMP desc;''')
+    if user_id:
+        dict_cur.execute(
+            '''SELECT longitude as "LONGITUDE", latitude as "LATITUDE", userid as "USERID", floor as "FLOOR", buildingid as "BUILDINGID", to_char(time_stamp, 'MM-DD-YYYY HH12:MI:SS') as TIMESTAMP, EXTRACT(EPOCH FROM ( NOW() - TIME_STAMP)) > 60 as is_old  FROM positions WHERE USERID={} ORDER BY TIME_STAMP desc;'''.format(
+                user_id))
+    else:
+        dict_cur.execute(
+            '''SELECT distinct on (userid) longitude as "LONGITUDE", latitude as "LATITUDE", userid as "USERID", floor as "FLOOR", buildingid as "BUILDINGID", to_char(time_stamp, 'MM-DD-YYYY HH12:MI:SS') as TIMESTAMP, EXTRACT(EPOCH FROM ( NOW() - TIME_STAMP)) > 60 as is_old  FROM positions ORDER BY userid, TIME_STAMP desc;''')
     return [dict(v) for v in dict_cur.fetchall()]
