@@ -1,8 +1,6 @@
-execute the requirement.txt
-write the steps to execute this project.
-
-
 ## Instructions project setup
+
+Install the puthon packages needed in requirement.txt
 
 Install [postgres](https://www.postgresql.org/download/) 
 and [rabbitmq](https://www.rabbitmq.com/download.html)
