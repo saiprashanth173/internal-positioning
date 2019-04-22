@@ -1,6 +1,6 @@
 ## Instructions project setup
 
-Install the python packages needed in requirement.txt
+Install the python packages needed in `requirements.txt` using pip.
 
 Install [postgres](https://www.postgresql.org/download/) 
 and [rabbitmq](https://www.rabbitmq.com/download.html)
@@ -10,7 +10,7 @@ $ rabbitmqctl add_user <user> <password>
 $ rabbitmqctl set_permissions -p ips <user> ".*" ".*" ".*"
 ```
 
-Add the following lines to your .bashrc
+Add the following lines to your `.bashrc`
 ```bash
 export CELERY_BROKER_URL=amqp://<user>:<password>@localhost:5672/ips
 export CELERY_RESULT_BACKEND=amqp://<user>:<password>@localhost:5672/ips
