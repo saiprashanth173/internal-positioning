@@ -8,17 +8,20 @@ and [rabbitmq](https://www.rabbitmq.com/download.html)
 $ rabbitmqctl add_vhost ips
 $ rabbitmqctl add_user <user> <password>
 $ rabbitmqctl set_permissions -p ips <user> ".*" ".*" ".*"
+```
 
-$ export CELERY_BROKER_URL=amqp://<user>:<password>@localhost:5672/ips
-$ export CELERY_RESULT_BACKEND=amqp://<user>:<password>@localhost:5672/ips
+Add the following lines to your .bashrc
+```bash
+export CELERY_BROKER_URL=amqp://<user>:<password>@localhost:5672/ips
+export CELERY_RESULT_BACKEND=amqp://<user>:<password>@localhost:5672/ips
 
-
-$ export PG_USER=<postgres-user>
-$ export PG_PASSWORD=<postgres-password>
-$ export PG_HOST=<hostname> # localhost 
-$ export PG_DB=ips
-
-# For creating tables
+export PG_USER=<postgres-user>
+export PG_PASSWORD=<postgres-password>
+export PG_HOST=<hostname> # localhost 
+export PG_DB=ips
+```
+For creating tables
+```bash
 createdb ips
 psql -U <user> -W -d ips < migrations.sql
 
