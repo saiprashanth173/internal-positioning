@@ -40,3 +40,15 @@ python server.py <host> <post> # In another terminal, you might need to export e
 #For now use <host>=localhost port=<8080>
 
 ```
+
+### Training
+```bash
+# Medium and hard case
+python train_lat_long_detector.py <model_name>
+## for help try -  python train_lat_long_detector.py -h 
+
+
+# For easy case use 
+python train.py
+## for help try -  python train.py -h
+```
