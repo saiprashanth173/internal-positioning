@@ -8,17 +8,16 @@ import pandas as pd
 import tensorflow as tf
 import tensorlayer as tl
 from sklearn.decomposition import PCA
-from sklearn.ensemble import GradientBoostingClassifier, GradientBoostingRegressor
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import RandomForestRegressor
 from sklearn.exceptions import NotFittedError
 from sklearn.externals import joblib
-from sklearn.metrics import accuracy_score
 from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error, explained_variance_score
 from sklearn.model_selection import GridSearchCV
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.svm import SVC, SVR
-from xgboost import XGBRegressor, XGBClassifier
+from sklearn.svm import SVR
+from xgboost import XGBRegressor
 
 CV = 2
 FEATURES = 520
@@ -147,7 +146,6 @@ class AbstractModel(object):
     longitude_regression_model = None
     latitude_regression_model = None
 
-
     # Normalize variable
     longitude_mean = None
     longitude_std = None
@@ -161,7 +159,6 @@ class AbstractModel(object):
     longitude_normalize_y = None
     latitude_normalize_y = None
 
-
     def __init__(self, do_PCA=False):
         self.do_PCA = do_PCA
         pass
@@ -169,7 +166,6 @@ class AbstractModel(object):
     def _preprocess(self, x, y):
         self.normalize_x = normalizeX(x, do_PCA=self.do_PCA)
         self.longitude_normalize_y, self.latitude_normalize_y = normalizeY(y[:, 0], y[:, 1])
-
 
     def save(self):
         print
@@ -195,7 +191,6 @@ class AbstractModel(object):
         del self.normalize_x
         del self.longitude_normalize_y
         del self.latitude_normalize_y
-
 
         # Save the result
         self.save()
@@ -234,8 +229,7 @@ class SVM(AbstractModel):
     longitude_regression_model_save_path = './data/uji_models/svm_long.pkl'
     latitude_regression_model_save_path = './data/uji_models/svm_lat.pkl'
 
-
-    def __init__(self, do_PCA = False):
+    def __init__(self, do_PCA=False):
         Cs = [0.001, 0.01]
         gammas = [0.001, 0.01]
         param_grid = {'C': Cs, 'gamma': gammas, 'kernel': ['linear', 'rbf']}
@@ -243,7 +237,7 @@ class SVM(AbstractModel):
         lat_reg_model = GridSearchCV(SVR(kernel='rbf'), param_grid, cv=CV)
         self.longitude_regression_model = longitude_reg_model
         self.latitude_regression_model = lat_reg_model
-        super(SVM,self).__init__(do_PCA = do_PCA)
+        super(SVM, self).__init__(do_PCA=do_PCA)
 
 
 class RandomForest(AbstractModel):
@@ -254,7 +248,7 @@ class RandomForest(AbstractModel):
     def __init__(self, do_PCA=False):
         self.longitude_regression_model = RandomForestRegressor()
         self.latitude_regression_model = RandomForestRegressor()
-        super(RandomForest, self).__init__(do_PCA = do_PCA)
+        super(RandomForest, self).__init__(do_PCA=do_PCA)
 
 
 class GradientBoostingDecisionTree(AbstractModel):
@@ -262,10 +256,10 @@ class GradientBoostingDecisionTree(AbstractModel):
     longitude_regression_model_save_path = './data/uji_models/gb_long.pkl'
     latitude_regression_model_save_path = './data/uji_models/gb_lat.pkl'
 
-    def __init__(self, do_PCA = False):
+    def __init__(self, do_PCA=False):
         self.longitude_regression_model = GradientBoostingRegressor()
         self.latitude_regression_model = GradientBoostingRegressor()
-        super(GradientBoostingDecisionTree, self).__init__(do_PCA = do_PCA)
+        super(GradientBoostingDecisionTree, self).__init__(do_PCA=do_PCA)
 
 
 class KNN(AbstractModel):
@@ -273,11 +267,10 @@ class KNN(AbstractModel):
     longitude_regression_model_save_path = './data/uji_models/knnb_long.pkl'
     latitude_regression_model_save_path = './data/uji_models/knnb_lat.pkl'
 
-    def __init__(self, do_PCA = False):
+    def __init__(self, do_PCA=False):
         self.longitude_regression_model = KNeighborsRegressor()
         self.latitude_regression_model = KNeighborsRegressor()
-        super(KNN,self).__init__(do_PCA=do_PCA)
-
+        super(KNN, self).__init__(do_PCA=do_PCA)
 
 
 class XGradientBoostingDecisionTree(AbstractModel):
@@ -285,7 +278,7 @@ class XGradientBoostingDecisionTree(AbstractModel):
     longitude_regression_model_save_path = './data/uji_models/xgb_long.pkl'
     latitude_regression_model_save_path = './data/uji_models/xgb_lat.pkl'
 
-    def __init__(self, do_PCA = False):
+    def __init__(self, do_PCA=False):
         self.longitude_regression_model = XGBRegressor()
         self.latitude_regression_model = XGBRegressor()
         super(XGradientBoostingDecisionTree, self).__init__(do_PCA=do_PCA)
@@ -298,7 +291,7 @@ class ComplexDNN(AbstractModel):
 
     sess = None
 
-    def __init__(self, do_PCA = False):
+    def __init__(self, do_PCA=False):
         self.sess = tf.InteractiveSession()
         self.x = tf.placeholder(tf.float32, [None, FEATURES])
         self.locating_y = tf.placeholder(tf.float32, [None, 2])
@@ -340,8 +333,7 @@ class ComplexDNN(AbstractModel):
                 _cost, _, _output = self.sess.run([self.locating_cost, self.locating_optimize, self.locating_predict_y],
                                                   feed_dict=feed_dict)
                 if i % 100 == 0:
-                    print
-                    "epoch: ", i, '\tcost: ', _cost
+                    print("epoch: ", i, '\tcost: ', _cost)
 
         self.save()
 
@@ -370,13 +362,14 @@ class ComplexDNN(AbstractModel):
                               np.expand_dims(predict_latitude, axis=-1)), axis=-1)
         return res
 
+
 if __name__ == '__main__':
-    #Parsing arguments
+    # Parsing arguments
     import argparse
 
     parser = argparse.ArgumentParser(description='Models for finding latitude and longitude')
     argument = parser.add_argument('model_name', type=str, help="model name: SVM, RF, GBDT, CDNN")
-    parser.add_argument('-y', action ='store_true', help="PCA Mode")
+    parser.add_argument('-y', action='store_true', help="PCA Mode")
     args = parser.parse_args()
     model_name = args.model_name
     # Load data
@@ -403,9 +396,6 @@ if __name__ == '__main__':
         dnn_model = ComplexDNN(do_PCA=pca_mode)
         dnn_model.fit(train_x, train_y)
         model = dnn_model
-
-        # Print testing result
-
         print('DNN error: ', dnn_model.error(test_x, test_y))
     else:
         print('Model Name is incorrect')

@@ -1,22 +1,13 @@
 import json
+import time
 from pprint import pprint
+
+import pandas as pd
 
 import train_lat_long_detector
 from celery_worker import app
-import time
-import pandas as pd
-
 from config import PREDICTION_MODEL
 from db import insert_positions
-
-
-@app.task
-def longtime_add(x, y):
-    print('long time task begins')
-    # sleep 5 seconds
-    time.sleep(5)
-    print('long time task finished')
-    return x + y
 
 
 @app.task

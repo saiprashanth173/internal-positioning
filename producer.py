@@ -1,9 +1,7 @@
-from config import MULTI_DATA_FRAME
-from celery_worker import app
-from tasks import predict_for
 from gevent import sleep
-import time
-import pandas as pd
+
+from config import MULTI_DATA_FRAME
+from tasks import predict_for
 
 
 def uji_producer():

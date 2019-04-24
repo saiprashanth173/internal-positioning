@@ -1,14 +1,13 @@
-import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.ensemble import RandomForestRegressor
+import numpy as np
 from sklearn.model_selection import learning_curve
 from sklearn.multioutput import MultiOutputRegressor
-from sklearn.svm import SVR
 from sklearn.neighbors import KNeighborsRegressor
 
 from train_lat_long_detector import load, normalizeX, normalizeY
 
 
+# Source Sklearn tutorial
 def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
                         n_jobs=None, train_sizes=np.linspace(.1, 1.0, 5)):
     """
@@ -96,8 +95,6 @@ def plot_learning_curve(estimator, title, X, y, ylim=None, cv=None,
 
 
 if __name__ == "__main__":
-    from xgboost import XGBRegressor, XGBClassifier
-
     train_csv_path = './data/uji_data/1478167720_9233432_trainingData.csv'
     valid_csv_path = './data/uji_data/1478167721_0345678_validationData.csv'
     train_x, train_y, valid_x, valid_y, test_x, test_y = load(train_csv_path, valid_csv_path)
@@ -106,4 +103,3 @@ if __name__ == "__main__":
     plt = plot_learning_curve(random_forest_longitude, "Longitude-Longitude", normalizeX(train_x),
                               np.column_stack(normalizeY(train_y[:, 0], train_y[:, 1])))
     plt.savefig('lat-long-knn.png')
-    # plt.savefig('longitude.png')

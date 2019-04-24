@@ -1,15 +1,13 @@
+import random
 import time
 
+import pandas as pd
 from keras.engine.saving import load_model
 
+import train_lat_long_detector
 from config import DATA_FRAME, MODEL_PATH, MULTI_DATA_FRAME, PREDICTION_MODEL
-import pandas as pd
-import time
-
 from db import get_latest_positions
 from predict import predict
-import random
-import train_lat_long_detector
 
 
 class BaseGenerator:
@@ -19,22 +17,6 @@ class BaseGenerator:
     def get_next(self):
         raise NotImplementedError()
 
-
-# class CSVGenerator(BaseGenerator):
-#     DATA_CHUNKS = []
-#     df = DATA_FRAME
-#     grouped_by_ts = df.groupby(["time_seen"])
-#     for group in grouped_by_ts.groups:
-#         DATA_CHUNKS.append(grouped_by_ts.get_group(group))
-
-#     def __init__(self):
-#         self.get_next_counter = 0
-#         self.chunks = self.DATA_CHUNKS
-
-#     def get_next(self):
-#         next_chunk = self.chunks[self.get_next_counter % len(self.chunks)]
-#         self.get_next_counter += 1
-#         return next_chunk
 
 class CSVGenerator(BaseGenerator):
     DATA_CHUNKS = []

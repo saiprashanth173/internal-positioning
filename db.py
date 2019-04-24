@@ -3,7 +3,7 @@ import os
 import time
 
 import psycopg2
-from psycopg2.extras import DictCursor, RealDictCursor
+from psycopg2.extras import RealDictCursor
 
 connection = psycopg2.connect(user=os.getenv('PG_USER'),
                               password=os.getenv('PG_PASSWORD'),

@@ -17,6 +17,7 @@ PREDICTION_MODEL = 'RandomForest'
 
 PG_GENERATOR = "PGGenerator"
 
+
 def raise_error(variable):
     raise EnvironmentError('The "' + variable + '" configuration must be defined')
 
